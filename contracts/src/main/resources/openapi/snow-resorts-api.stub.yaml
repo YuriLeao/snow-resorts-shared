@@ -1,0 +1,84 @@
+openapi: 3.1.0
+info:
+  title: Snow Resorts API (stub)
+  version: 0.1.0
+  description: >
+    Aggregate contract stub for the Snow Resorts platform. Each service also exposes its
+    own live spec at /v3/api-docs (springdoc). This file is the source for generating the
+    mobile TypeScript client and for contract tests.
+servers:
+  - url: http://localhost:8080
+    description: Local dev (nginx gateway mirroring the prod ALB path routing)
+tags:
+  - name: auth
+  - name: users
+  - name: resorts
+  - name: location
+  - name: activity
+paths:
+  /snow-resort-service/v1/auth/login:
+    post:
+      tags: [auth]
+      summary: Authenticate and issue access + refresh tokens
+      responses:
+        "200": { description: Tokens issued }
+  /snow-resort-service/v1/auth/refresh:
+    post:
+      tags: [auth]
+      summary: Rotate refresh token and issue a new access token
+      responses:
+        "200": { description: Tokens rotated }
+  /.well-known/jwks.json:
+    get:
+      tags: [auth]
+      summary: JWKS public keys for JWT validation
+      responses:
+        "200": { description: JWK Set }
+  /snow-resort-service/v1/users/me:
+    get:
+      tags: [users]
+      summary: Current user's profile (with avatarUrl)
+      responses:
+        "200": { description: Profile }
+  /snow-resort-service/v1/users/me/avatar/upload-url:
+    post:
+      tags: [users]
+      summary: Generate a presigned S3 PUT URL for avatar upload
+      responses:
+        "200": { description: Presigned URL }
+  /snow-resort-service/v1/resorts:
+    get:
+      tags: [resorts]
+      summary: List resorts (supports spatial near query)
+      responses:
+        "200": { description: Resort page }
+  /snow-resort-service/v1/resorts/{id}/reviews:
+    post:
+      tags: [resorts]
+      summary: Create a resort review (1 per user per resort, rating 1-5)
+      responses:
+        "201": { description: Review created }
+  /snow-resort-service/v1/location/groups:
+    post:
+      tags: [location]
+      summary: Create a live location group
+      responses:
+        "201": { description: Group created }
+  /ws/location:
+    get:
+      tags: [location]
+      summary: WebSocket STOMP endpoint for real-time positions
+      responses:
+        "101": { description: Switching Protocols }
+  /snow-resort-service/v1/runs/start:
+    post:
+      tags: [activity]
+      summary: Start a descent tracking session
+      responses:
+        "201": { description: Run started }
+  /snow-resort-service/v1/leaderboard/friends:
+    get:
+      tags: [activity]
+      summary: Friends leaderboard (today/week/season)
+      responses:
+        "200": { description: Leaderboard }

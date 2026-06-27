@@ -1,0 +1,2 @@
+com.snowresorts.security.SecurityLibAutoConfiguration
+com.snowresorts.security.jackson.ApiDateTimeAutoConfiguration

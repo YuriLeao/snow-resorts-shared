@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snow-resorts.com/events/run-completed.schema.json",
+  "title": "RunCompletedEvent",
+  "type": "object",
+  "required": ["eventId", "type", "occurredAt", "runId", "userId", "resortId"],
+  "properties": {
+    "eventId": { "type": "string", "format": "uuid" },
+    "type": { "const": "run.completed" },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "runId": { "type": "string", "format": "uuid" },
+    "userId": { "type": "string", "format": "uuid" },
+    "resortId": { "type": "string", "format": "uuid" },
+    "maxSpeedKmh": { "type": "number" },
+    "distanceM": { "type": "number" },
+    "durationSec": { "type": "integer" }
+  }
+}
