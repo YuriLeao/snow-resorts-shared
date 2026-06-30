@@ -15,7 +15,7 @@ public final class SecurityUtils {
     }
 
     /** @return the authenticated user id ({@code sub}), or empty when unauthenticated. */
-    public static Optional<UUID> currentUserId() {
+    private static Optional<UUID> currentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication instanceof JwtAuthenticationToken token) {
             return Optional.ofNullable(token.getToken().getSubject()).map(UUID::fromString);

@@ -8,7 +8,7 @@ Publishable shared libraries consumed by every Snow Resorts microservice. Publis
 | Module | Artifact | Purpose |
 |--------|----------|---------|
 | `security-lib` | `com.snowresorts:security-lib` | Auto-configured JWT resource-server chain, OWASP security headers, correlation-id filter, RFC 7807 `GlobalExceptionHandler` + base exceptions |
-| `contracts` | `com.snowresorts:contracts` | Domain-free async event records (`RunCompletedEvent`, `ReviewCreatedEvent`) + OpenAPI/JSON-schema stubs |
+| `contracts` | `com.snowresorts:contracts` | Domain-free async event records (`RunCompletedEvent`) + OpenAPI/JSON-schema stubs |
 
 ## Versioning & publishing
 
