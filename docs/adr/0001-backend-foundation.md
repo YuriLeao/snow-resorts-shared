@@ -3,8 +3,8 @@
 Status: Accepted · Date: 2026-06
 
 ## Context
-Bootstrapping the Snow Resorts backend monorepo (5 selective microservices + shared libs)
-per the architecture plan, targeting Java 25 and Spring Boot 3.4+.
+Bootstrapping the Snow Resorts backend as a **polyrepo** (5 selective microservices + shared libs
+in independent Git repositories), targeting Java 25 and Spring Boot 3.4+.
 
 ## Decisions
 
@@ -18,9 +18,9 @@ per the architecture plan, targeting Java 25 and Spring Boot 3.4+.
    DTOs/value objects, and explicit SLF4J logger fields. This satisfies the Java rule's
    "explicit constructor" allowance.
 
-3. **Top-level Maven aggregator.** Root `pom.xml` inherits `spring-boot-starter-parent` and
-   aggregates `shared/*` + `services/*`, giving one-command `mvn install` and centralised
-   dependency/plugin management (Testcontainers, AWS SDK, springdoc, hibernate-spatial BOMs).
+3. **Independent Maven projects per repo.** Each service and `snow-resorts-shared` has its own
+   `pom.xml` and CI; shared libs are published to GitHub Packages and consumed by version pin
+   (`snow-resorts-shared.version`), not via a sibling folder.
 
 4. **One database, schema per service.** A single `snow_resorts` Postgres+PostGIS database with
    `auth`/`users`/`resorts`/`location`/`activity` schemas; each service owns its Flyway
@@ -40,3 +40,4 @@ per the architecture plan, targeting Java 25 and Spring Boot 3.4+.
 ## Consequences
 - Local dev is $0 (Docker Compose + JVM). AWS only for staging/prod (owned by the Terraform
   workstream). Integration tests use Testcontainers (Postgres/PostGIS, Redis) and run in CI.
+- Full architecture snapshot: `ARCHITECTURE.md` in the workspace root repo (`snow-resorts`).
