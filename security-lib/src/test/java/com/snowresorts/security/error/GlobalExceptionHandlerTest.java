@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.server.ResponseStatusException;
 
 class GlobalExceptionHandlerTest {
 
@@ -58,5 +59,32 @@ class GlobalExceptionHandlerTest {
         assertThat(problem.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
         assertThat(problem.getDetail()).isEqualTo("An unexpected error occurred.");
         assertThat(problem.getDetail()).doesNotContain("secret");
+    }
+
+    @Test
+    @DisplayName("handleResponseStatus maps ResponseStatusException to the declared HTTP status")
+    void handleResponseStatus_tooManyRequests_returns429Problem() {
+        HttpServletRequest request = new MockHttpServletRequest(
+                "POST", "/snow-resort-service/v1/location/groups/abc/position");
+        ResponseStatusException ex = new ResponseStatusException(
+                HttpStatus.TOO_MANY_REQUESTS, "Position publish rate limit exceeded");
+
+        ProblemDetail problem = handler.handleResponseStatus(ex, request);
+
+        assertThat(problem.getStatus()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS.value());
+        assertThat(problem.getDetail()).isEqualTo("Position publish rate limit exceeded");
+    }
+
+    @Test
+    @DisplayName("handleApiException maps TooManyRequestsException to a 429 Problem Detail")
+    void handleApiException_tooManyRequests_returns429Problem() {
+        HttpServletRequest request = new MockHttpServletRequest(
+                "POST", "/snow-resort-service/v1/location/groups/abc/position");
+        TooManyRequestsException ex = new TooManyRequestsException("Position publish rate limit exceeded");
+
+        ProblemDetail problem = handler.handleApiException(ex, request);
+
+        assertThat(problem.getStatus()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS.value());
+        assertThat(problem.getTitle()).isEqualTo("Too Many Requests");
     }
 }
