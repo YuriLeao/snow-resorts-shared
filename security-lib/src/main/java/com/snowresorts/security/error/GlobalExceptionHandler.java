@@ -99,11 +99,25 @@ public class GlobalExceptionHandler {
 
     private ApiFieldError toFieldError(FieldError fieldError) {
         return new ApiFieldError(fieldError.getField(), fieldError.getDefaultMessage(),
-                fieldError.getRejectedValue());
+                redactIfSensitive(fieldError.getField(), fieldError.getRejectedValue()));
     }
 
     private ApiFieldError toFieldError(ConstraintViolation<?> violation) {
         String field = violation.getPropertyPath() == null ? null : violation.getPropertyPath().toString();
-        return new ApiFieldError(field, violation.getMessage(), violation.getInvalidValue());
+        return new ApiFieldError(field, violation.getMessage(),
+                redactIfSensitive(field, violation.getInvalidValue()));
+    }
+
+    private static Object redactIfSensitive(String field, Object rejectedValue) {
+        if (field == null) {
+            return rejectedValue;
+        }
+        String normalized = field.toLowerCase();
+        if (normalized.contains("password")
+                || normalized.equals("token")
+                || normalized.endsWith("token")) {
+            return null;
+        }
+        return rejectedValue;
     }
 }

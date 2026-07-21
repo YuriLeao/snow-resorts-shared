@@ -39,9 +39,12 @@ public class ResourceServerSecurityConfig {
     };
 
     private final ResourceServerProperties properties;
+    private final AccessTokenRevocationStore accessTokenRevocationStore;
 
-    public ResourceServerSecurityConfig(ResourceServerProperties properties) {
+    public ResourceServerSecurityConfig(ResourceServerProperties properties,
+                                        AccessTokenRevocationStore accessTokenRevocationStore) {
         this.properties = properties;
+        this.accessTokenRevocationStore = accessTokenRevocationStore;
     }
 
     @Bean
@@ -60,6 +63,7 @@ public class ResourceServerSecurityConfig {
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(
                         new JwtAuthoritiesConverter(properties.getAuthoritiesClaim(),
                                 properties.getAuthorityPrefix()))));
+        ResourceServerHttpSecurity.addAccessTokenRevocationFilter(http, accessTokenRevocationStore);
 
         return http.build();
     }
