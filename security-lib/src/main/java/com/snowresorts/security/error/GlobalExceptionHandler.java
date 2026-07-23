@@ -1,5 +1,6 @@
 package com.snowresorts.security.error;
 
+import com.snowresorts.security.logging.StructuredLogger;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -28,7 +29,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     public ProblemDetail handleApiException(ApiException ex, HttpServletRequest request) {
-        log.warn("API exception [{}]: {}", ex.getStatus(), ex.getMessage());
+        StructuredLogger.of(log).warn("api_error", "denied", "api_exception",
+                "status", ex.getStatus().value(),
+                "path", request.getRequestURI(),
+                "exception", ex.getClass().getSimpleName());
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(ex.getStatus(), ex.getMessage());
         problem.setTitle(ex.getTitle());
         problem.setInstance(URI.create(request.getRequestURI()));
@@ -80,7 +84,9 @@ public class GlobalExceptionHandler {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
         String detail = ex.getReason() != null ? ex.getReason() : status.getReasonPhrase();
-        log.warn("Response status [{}]: {}", status.value(), detail);
+        StructuredLogger.of(log).warn("api_error", "denied", "response_status",
+                "status", status.value(),
+                "path", request.getRequestURI());
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
         problem.setTitle(status.getReasonPhrase());
         problem.setInstance(URI.create(request.getRequestURI()));
@@ -89,7 +95,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleUnexpected(Exception ex, HttpServletRequest request) {
-        log.error("Unhandled exception processing {}", request.getRequestURI(), ex);
+        StructuredLogger.of(log).error("api_error", "failed", "unhandled_exception", ex,
+                "path", request.getRequestURI(),
+                "exception", ex.getClass().getSimpleName());
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred.");
         problem.setTitle("Internal Server Error");

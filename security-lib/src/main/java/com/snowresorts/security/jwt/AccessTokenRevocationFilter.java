@@ -1,11 +1,14 @@
 package com.snowresorts.security.jwt;
 
+import com.snowresorts.security.logging.StructuredLogger;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -18,6 +21,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * Rejects authenticated requests whose access token was revoked after logout / password reset.
  */
 public class AccessTokenRevocationFilter extends OncePerRequestFilter {
+
+    private static final Logger log = LoggerFactory.getLogger(AccessTokenRevocationFilter.class);
 
     private final AccessTokenRevocationStore store;
 
@@ -40,6 +45,10 @@ public class AccessTokenRevocationFilter extends OncePerRequestFilter {
                 // malformed sub — leave userId null; jti check may still apply
             }
             if (store.isRevoked(jwt.getId(), userId, jwt.getIssuedAt())) {
+                StructuredLogger.of(log).warn("access_denied", "denied", "token_revoked",
+                        "user_id", userId,
+                        "jti", jwt.getId(),
+                        "path", request.getRequestURI());
                 SecurityContextHolder.clearContext();
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);

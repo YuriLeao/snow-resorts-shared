@@ -1,3 +1,4 @@
 com.snowresorts.security.jwt.RedisAccessTokenRevocationAutoConfiguration
 com.snowresorts.security.SecurityLibAutoConfiguration
 com.snowresorts.security.jackson.ApiDateTimeAutoConfiguration
+com.snowresorts.security.web.CorrelationIdRestClientCustomizer

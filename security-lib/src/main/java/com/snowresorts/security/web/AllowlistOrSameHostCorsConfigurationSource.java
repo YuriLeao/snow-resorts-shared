@@ -1,5 +1,6 @@
 package com.snowresorts.security.web;
 
+import com.snowresorts.security.logging.StructuredLogger;
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.util.ArrayList;
@@ -57,8 +58,10 @@ public final class AllowlistOrSameHostCorsConfigurationSource implements CorsCon
 
         String normalized = normalizeOrigin(origin);
         if (!isPermitted(normalized, request)) {
-            log.warn("CORS rejected origin={} host={}",
-                    normalized, request.getHeader(HttpHeaders.HOST));
+            StructuredLogger.of(log).warn(
+                    "cors_rejected", "denied", "origin_not_allowlisted",
+                    "origin", normalized,
+                    "host", request.getHeader(HttpHeaders.HOST));
             // Empty allow-list → CorsFilter rejects with 403 (do not echo Origin).
             return baseConfig();
         }

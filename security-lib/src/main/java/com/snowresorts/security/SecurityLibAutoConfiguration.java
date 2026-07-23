@@ -6,6 +6,7 @@ import com.snowresorts.security.jwt.InMemoryAccessTokenRevocationStore;
 import com.snowresorts.security.jwt.RedisAccessTokenRevocationAutoConfiguration;
 import com.snowresorts.security.jwt.ResourceServerProperties;
 import com.snowresorts.security.jwt.ResourceServerSecurityConfig;
+import com.snowresorts.security.logging.StructuredLogger;
 import com.snowresorts.security.web.CorrelationIdFilter;
 import com.snowresorts.security.web.SecurityHeadersFilter;
 import com.snowresorts.security.web.SnowCorsConfiguration;
@@ -45,8 +46,7 @@ public class SecurityLibAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(AccessTokenRevocationStore.class)
     AccessTokenRevocationStore inMemoryAccessTokenRevocationStore() {
-        log.warn("Access-token revocation store: in-memory (not shared across services; "
-                + "start Redis and spring-boot-starter-data-redis for logout denylist)");
+        StructuredLogger.of(log).warn("revocation_store", "accepted", "in_memory_fallback");
         return new InMemoryAccessTokenRevocationStore();
     }
 

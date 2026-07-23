@@ -7,35 +7,39 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
 import org.slf4j.MDC;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Propagates an {@code X-Trace-Id} correlation id from the edge (ALB / mobile) into the
- * SLF4J {@link MDC} and the response, generating one when absent. Enables traceable,
- * structured logs across services.
+ * SLF4J {@link MDC} and the response, generating one when absent.
+ *
+ * <p>MDC keys: {@code request_id} (canonical) and {@code traceId} (same value, for compat).
+ * Order is set on the {@code FilterRegistrationBean} in {@code SecurityLibAutoConfiguration}.
  */
-@Order(Ordered.HIGHEST_PRECEDENCE + 1)
 public class CorrelationIdFilter extends OncePerRequestFilter {
 
     public static final String TRACE_ID_HEADER = "X-Trace-Id";
+    public static final String MDC_REQUEST_ID = "request_id";
+    /** Alias of {@link #MDC_REQUEST_ID} kept for existing docs / Insights queries. */
     public static final String MDC_TRACE_ID = "traceId";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String traceId = request.getHeader(TRACE_ID_HEADER);
-        if (!StringUtils.hasText(traceId)) {
-            traceId = UUID.randomUUID().toString();
+        String requestId = request.getHeader(TRACE_ID_HEADER);
+        if (!StringUtils.hasText(requestId)) {
+            requestId = UUID.randomUUID().toString();
         }
-        MDC.put(MDC_TRACE_ID, traceId);
-        response.setHeader(TRACE_ID_HEADER, traceId);
+        MDC.put(MDC_REQUEST_ID, requestId);
+        MDC.put(MDC_TRACE_ID, requestId);
+        response.setHeader(TRACE_ID_HEADER, requestId);
         try {
             filterChain.doFilter(request, response);
         } finally {
+            MDC.remove(MDC_REQUEST_ID);
             MDC.remove(MDC_TRACE_ID);
+            MDC.remove(AuthenticatedUserMdcFilter.MDC_USER_ID);
         }
     }
 }

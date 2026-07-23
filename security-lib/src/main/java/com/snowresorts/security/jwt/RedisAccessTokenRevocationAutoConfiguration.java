@@ -1,6 +1,7 @@
 package com.snowresorts.security.jwt;
 
 import com.snowresorts.security.SecurityLibAutoConfiguration;
+import com.snowresorts.security.logging.StructuredLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -30,7 +31,7 @@ public class RedisAccessTokenRevocationAutoConfiguration {
     @ConditionalOnBean(StringRedisTemplate.class)
     @ConditionalOnMissingBean(AccessTokenRevocationStore.class)
     AccessTokenRevocationStore redisAccessTokenRevocationStore(StringRedisTemplate redis) {
-        log.info("Access-token revocation store: Redis (shared across services)");
+        StructuredLogger.of(log).info("revocation_store", "accepted", "redis_backed");
         return new RedisAccessTokenRevocationStore(redis);
     }
 }
