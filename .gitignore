@@ -18,3 +18,10 @@ target/
 
 # Maven backups
 pom.xml.versionsBackup
+
+# Local secrets / env
+.env
+.env.*
+!.env*.example
+
+settings.xml
